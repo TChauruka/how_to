@@ -1,4 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
-  
+
+    <ul class="collapsible popout">
+        {% for how in hows %}
+        <li>
+            <div class="collapsible-header white-text light-blue darken-4 text-shadow">
+                <div class="col s9">
+                    <strong>{{ how.hows_title }}</strong>
+                </div>
+            </div>
+            <div class="collapsible-body">
+                <strong>{{ how.category_name }}</strong>
+                <p>{{ how.hows_description }}</p>
+                <p><em>by: {{ how.created_by }}</em></p>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+
 {% endblock %}
