@@ -18,6 +18,12 @@ app.secret_key = os.environ.get("SECRET_KEY")
 mongo = PyMongo(app)
 
 @app.route("/")
+@app.route("/home")
+def home():
+    categories = mongo.db.categories.find()
+    return render_template("home.html", categories=categories)
+
+
 @app.route("/get_categories")
 def get_categories():
     categories = list(mongo.db.categories.find())
