@@ -17,25 +17,37 @@ app.secret_key = os.environ.get("SECRET_KEY")
 
 mongo = PyMongo(app)
 
+
 @app.route("/")
-@app.route("/home")
+@app.route("/home/")
 def home():
+    """
+    THIS IS FUNCTION DOCUMENTATION
+    """
     categories = mongo.db.categories.find()
     return render_template("home.html", categories=categories)
 
 
-@app.route("/get_categories")
+@app.route("/get_categories/")
 def get_categories():
     categories = list(mongo.db.categories.find())
     return render_template("get_categories.html", categories=categories)
 
-@app.route("/get_hows")
+
+@app.route("/get_hows/")
 def get_hows():
     hows = list(mongo.db.hows.find())
     return render_template("get_hows.html", hows=hows)
 
 
-@app.route("/register", methods=["GET","POST"])
+@app.route("/category/<category_name>")
+def category(category_name):
+    # url_for("category", category_name="social") --> /category/social
+    hows = list(mongo.db.hows.filter({"category_name": category_name}))
+    return render_template("category_detail.html", category_name=category_name, hows=hows)
+
+
+@app.route("/register/", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
         # check if username already exists in db
@@ -51,10 +63,13 @@ def register():
             "password": generate_password_hash(request.form.get("password"))
         }
         mongo.db.users.insert_one(register)
+        flash('You can now login')
+        return redirect(url_for("profile"))
 
     return render_template("register.html")
 
-@app.route("/login", methods=["GET", "POST"])
+
+@app.route("/login/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         # check if username exists in db
@@ -65,11 +80,11 @@ def login():
             # ensure hashed password matches user input
             if check_password_hash(
                     existing_user["password"], request.form.get("password")):
-                        session["user"] = request.form.get("username").lower()
-                        flash("Welcome, {}".format(
-                            request.form.get("username")))
-                        return redirect(url_for(
-                            "profile", username=session["user"]))
+                session["user"] = request.form.get("username").lower()
+                flash("Welcome, {}".format(
+                    request.form.get("username")))
+                return redirect(url_for(
+                    "profile", username=session["user"]))
             else:
                 # invalid password match
                 flash("Incorrect Username and/or Password")
@@ -82,16 +97,26 @@ def login():
 
     return render_template("login.html")
 
+
 @app.route("/profile/<username>", methods=["GET", "POST"])
 def profile(username):
     # grab the session user's username from db
     username = mongo.db.users.find_one(
         {"username": session["user"]})["username"]
-    
+
     if session["user"]:
         return render_template("profile.html", username=username)
-    
+
     return redirect(url_for("login"))
+
+
+@app.route("/logout/")
+def logout():
+    #remove user from session cookies
+    flash("You have been logged out!")
+    session.pop("user")
+    return redirect(url_for("login"))
+
 
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),
