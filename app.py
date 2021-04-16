@@ -47,7 +47,7 @@ def category(category_name):
     return render_template("category_detail.html", category_name=category_name, hows=hows)
 
 
-@app.route("/register/", methods=["GET", "POST"])
+@app.route("/register/", methods=["GET","POST"])
 def register():
     if request.method == "POST":
         # check if username already exists in db
@@ -63,10 +63,14 @@ def register():
             "password": generate_password_hash(request.form.get("password"))
         }
         mongo.db.users.insert_one(register)
-        flash('You can now login')
-        return redirect(url_for("profile"))
+
+        # put the new user into 'session' cookie
+        session["user"] = request.form.get("username").lower()
+        flash("Registration Successful!")
+        return redirect(url_for("profile", username=session["user"]))
 
     return render_template("register.html")
+
 
 
 @app.route("/login/", methods=["GET", "POST"])
