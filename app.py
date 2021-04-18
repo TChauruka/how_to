@@ -63,7 +63,6 @@ def register():
     return render_template("register.html")
 
 
-
 @app.route("/login/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -111,6 +110,23 @@ def logout():
     flash("You have been logged out!")
     session.pop("user")
     return redirect(url_for("login"))
+
+
+@app.route("/add_hows/", methods=["Get","POST"])
+def add_hows():
+    if request.method == "POST" :
+        task = {
+            "category_name": request.form.get("category_name"),
+            "hows_title": request.form.get("hows_title"),
+            "hows_description": request.form.get("hows_description"),
+            "created_by": session["user"]
+        }
+        mongo.db.hows.insert_one(task)
+        flash("How To Successfully Added")
+        return redirect(url_for("get_hows"))
+
+    categories = mongo.db.categories.find().sort("category_name",1)
+    return render_template("add_hows.html", categories = categories)
 
 
 if __name__ == "__main__":
