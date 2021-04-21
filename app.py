@@ -19,12 +19,6 @@ mongo = PyMongo(app)
 
 
 @app.route("/")
-@app.route("/get_categories/")
-def get_categories():
-    categories = list(mongo.db.categories.find())
-    return render_template("get_categories.html", categories=categories)
-
-
 @app.route("/get_hows/")
 def get_hows():
     hows = list(mongo.db.hows.find())
@@ -36,6 +30,25 @@ def category(category_name):
     # url_for("category", category_name="social") --> /category/social
     hows = list(mongo.db.hows.filter({"category_name": category_name}))
     return render_template("category_detail.html", category_name=category_name, hows=hows)
+
+
+@app.route("/get_categories/")
+def get_categories():
+    categories = list(mongo.db.categories.find())
+    return render_template("get_categories.html", categories=categories)
+
+
+@app.route("/add_category/", methods=["GET","POST"])
+def add_category():
+    if request.method=="POST":
+        category ={
+            "category_name": request.form.get("category_name")
+        }
+        mongo.db.categories.insert_one(category )
+        flash("New Category Added")
+        return redirect(url_for("get_categories"))
+
+    return render_template("add_category.html")
 
 
 @app.route("/register/", methods=["GET","POST"])
