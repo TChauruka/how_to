@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <h3 class="light-blue-text text-darken-4 center-align">Edit Hows</h3>
+    <div class="row card-panel grey lighten-5">
+        <form class="col s12 " method="POST" action="{{ url_for('edit_hows', hows_id=hows._id)}}">
+            <!-- category dropdown -->
+            <div class="row">
+                <div class="input-field col s12">
+                    <i class="fas fa-folder-open prefix light-blue-text text-darken-4 "></i>
+                    <select id="category_name" name="category_name" class="validate" required>
+                        <option value="" disabled >Choose Category</option>
+                        {% for category in categories %}
+                            {% if category.category_name == hows.category_name %}
+                            <option value="{{ category.category_name }}" selected >{{ category.category_name }}</option>
+                            {% else %}
+                            <option value="{{ category.category_name }}">{{ category.category_name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <label for="category_name">Hows Category</label>
+                </div>
+            </div>
+            <!-- Tile of the hows  -->
+            <div class="row">
+                <div class="input-field col s12">
+                    <i class="fas fa-pencil-alt prefix light-blue-text text-darken-4 "></i>
+                    <input id="hows_title" name="hows_title" value="{{hows.hows_title}}"
+                      minlength="5" maxlength="50" type="text" class="validate" required>
+                    <label for="hows_title">Hows Name</label>
+                </div>
+            </div>
+            <!-- hows describtion -->
+            <div class="row">
+                <div class="input-field col s12">
+                    <i class="fas fa-align-left prefix light-blue-text text-darken-4"></i>
+                    <textarea id="hows_description" name="hows_description" class="materialize-textarea validate"minlength="5"
+                        maxlength="200" required>
+                        {{- hows.hows_description -}}
+                    </textarea>
+                    <label for="hows_description">Hows Description</label>
+                </div>
+            </div>
+            <!-- Submit button-->
+            <div class="row s12 center-align">
+                <!-- cancel all changes-->
+                <a href="{{url_for('get_hows')}}" class="btn-large red text-shadow">Cancel 
+                   <i class="fas fa-times-circle right"></i>
+                </a>
+                <button class="btn-large light-blue darken-1 text-shadow" type="submit" name="">
+                    Edit Hows <i class="fas fa-edit right"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}

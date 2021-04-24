@@ -5,6 +5,7 @@
         {% for how in hows %}
         <li>
             <div class="collapsible-header white-text light-blue darken-4 text-shadow">
+                <i class="fas fa-caret-down"></i>
                 <div class="col s9">
                     <strong>{{ how.hows_title }}</strong>
                 </div>
@@ -13,6 +14,13 @@
                 <strong>{{ how.category_name }}</strong>
                 <p>{{ how.hows_description }}</p>
                 <p><em>by: {{ how.created_by }}</em></p>
+
+                <div class="col s3">
+                    {% if session.user|lower == how.created_by|lower %}
+                        <a href="{{ url_for('edit_hows', hows_id=how._id) }}" class="btn-small light-blue lighten-1">Edit</a>
+                    {% endif %}
+                </div>
+                
             </div>
         </li>
         {% endfor %}

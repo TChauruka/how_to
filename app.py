@@ -162,17 +162,17 @@ def add_hows():
     return render_template("add_hows.html", categories = categories)
 
 
-@app.route("/edit_hows /<hows_id>", methods=["GET","POST"])
+@app.route("/edit_hows/<hows_id>/", methods=["GET","POST"])
 def edit_hows(hows_id):
-    how =mongo.db.hows.find_one({"_id": ObjectId(hows_id)})
+    hows =mongo.db.hows.find_one({"_id": ObjectId(hows_id)})
     if request.method == "POST" :
         submit = {
             "category_name": request.form.get("category_name"),
-            "howw_title": request.form.get("hows_title"),
+            "hows_title": request.form.get("hows_title"),
             "hows_description": request.form.get("hows_description"),
             "created_by": session["user"]
         }
-        mongo.db.task.update({"_id":ObjectId(hows_id)},submit)
+        mongo.db.hows.update({"_id":ObjectId(hows_id)},submit)
         flash("How To Successfully Updated")
 
     categories = mongo.db.categories.find().sort("category_name",1)
