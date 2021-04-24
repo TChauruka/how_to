@@ -162,6 +162,32 @@ def add_hows():
     return render_template("add_hows.html", categories = categories)
 
 
+@app.route("/edit_hows /<hows_id>", methods=["GET","POST"])
+def edit_hows(hows_id):
+    how =mongo.db.hows.find_one({"_id": ObjectId(hows_id)})
+    if request.method == "POST" :
+        submit = {
+            "category_name": request.form.get("category_name"),
+            "howw_title": request.form.get("hows_title"),
+            "hows_description": request.form.get("hows_description"),
+            "created_by": session["user"]
+        }
+        mongo.db.task.update({"_id":ObjectId(hows_id)},submit)
+        flash("How To Successfully Updated")
+
+    categories = mongo.db.categories.find().sort("category_name",1)
+    return render_template("edit_hows.html", hows=hows, categories = categories)
+
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('404.html'), 404
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    db.session.rollback()
+    return render_template('500.html'), 500
+    
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),
             port=int(os.environ.get("PORT")),
