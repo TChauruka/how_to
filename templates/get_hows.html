@@ -45,11 +45,14 @@
     </ul>
     {% else %}
         <h3 class="red-text text-darken-4 center-align">No Results Found</h3>
+        <h5 class=" blue-text text-darken-4 center-align"> Log In or Register to add How To </h5>
+        {% if session.user %}
         <div class="col s12 center-align">
             <a href="{{ url_for('add_hows' )}}" class="btn-large light-blue darken-2 text-shadow">
                 Add It <i class="fas fa-plus-square right"></i>
             </a>
         </div>
+        {% endif %}
     {% endif%}
 
 {% endblock %}
