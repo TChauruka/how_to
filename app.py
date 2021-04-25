@@ -25,6 +25,12 @@ def get_hows():
     return render_template("get_hows.html", hows=hows)
 
 
+@app.route("/search", methods=["GET","POST"])
+def search():
+    query = request.form.get("query")
+    hows =list( mongo.db.hows.find({"$text":{"$search":query}}))
+    return render_template("get_hows.html", hows=hows)
+
 @app.route("/category/<category_name>")
 def category(category_name):
     # url_for("category", category_name="social") --> /category/social
