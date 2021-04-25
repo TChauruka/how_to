@@ -178,6 +178,14 @@ def edit_hows(hows_id):
     categories = mongo.db.categories.find().sort("category_name",1)
     return render_template("edit_hows.html", hows=hows, categories = categories)
 
+
+@app.route("/delete_hows/<hows_id>")
+def delete_hows(hows_id):
+    mongo.db.hows.remove({"_id": ObjectId(hows_id)})
+    flash("Task Successfully Deleted")
+    return redirect(url_for("get_hows"))
+
+
 @app.errorhandler(404)
 def not_found_error(error):
     return render_template('404.html'), 404
