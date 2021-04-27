@@ -17,57 +17,94 @@ app.secret_key = os.environ.get("SECRET_KEY")
 
 mongo = PyMongo(app)
 
+admin_username = 'admin'
+
+# --------- Helper functions ---------
+
+
+def is_logged_in():
+    """
+    Check if the user is contained in the session
+    """
+    return session.get('user')
+
+
+def is_admin():
+    """
+    Check if the user is admin
+    """
+    return session.get('user') == admin_username
+
+# --------- Endpoints ---------
+
 
 @app.route("/")
 @app.route("/get_hows/")
 def get_hows():
+    """
+    Get a list of how-tos
+    """
     hows = list(mongo.db.hows.find())
     return render_template("get_hows.html", hows=hows)
 
 
-@app.route("/search", methods=["GET","POST"])
+@app.route("/search", methods=["GET", "POST"])
 def search():
+    """
+    Perform a search across the text of the how-tos
+    """
     query = request.form.get("query")
-    hows =list( mongo.db.hows.find({"$text":{"$search":query}}))
+    # Search the text of the how tos
+    hows = list(mongo.db.hows.find({"$text": {"$search": query}}))
     return render_template("get_hows.html", hows=hows)
-
-@app.route("/category/<category_name>")
-def category(category_name):
-    # url_for("category", category_name="social") --> /category/social
-    hows = list(mongo.db.hows.filter({"category_name": category_name}))
-    return render_template("category_detail.html", category_name=category_name, hows=hows)
 
 
 @app.route("/get_categories/")
 def get_categories():
-    categories = list(mongo.db.categories.find())
-    return render_template("get_categories.html", categories=categories)
+    '''
+    checks to see if user is login and is the admin
+    '''
+    if is_logged_in() and is_admin():
+        categories = list(mongo.db.categories.find())
+        return render_template("get_categories.html", categories=categories)
+    return redirect(url_for("get_hows"))
 
 
-@app.route("/add_category/", methods=["GET","POST"])
+@app.route("/add_category/", methods=["GET", "POST"])
 def add_category():
-    if request.method=="POST":
-        category ={
-            "category_name": request.form.get("category_name")
-        }
-        mongo.db.categories.insert_one(category )
-        flash("New Category Added")
-        return redirect(url_for("get_categories"))
+    """
+    check whether
+    1. The user is logged in
+    2. If the user is an admin
+    """
+    if is_logged_in() and is_admin():
+        if request.method == "POST":
+            category = {
+                "category_name": request.form.get("category_name")
+            }
+            mongo.db.categories.insert_one(category)
+            flash("New Category Added")
+            return redirect(url_for("get_categories"))
+        return render_template("add_category.html")
+    return redirect(url_for("get_hows"))
 
-    return render_template("add_category.html")
 
-
-@app.route("/edit_category/<category_id>",methods=["POST","GET"])
+@app.route("/edit_category/<category_id>", methods=["POST", "GET"])
 def edit_category(category_id):
-    if request.method == "POST":
-        submit ={
-            "category_name": request.form.get("category_name")
-        }
-        mongo.db.categories.update({"_id":ObjectId(category_id)}, submit)
-        flash("Category Successfuly Updated")
-        return redirect(url_for("get_categories"))
-    category = mongo.db.categories.find_one({"_id": ObjectId(category_id)})
-    return render_template("edit_category.html" ,category=category)
+    '''
+    checks to see if user is login and is the admin
+    '''
+    if is_logged_in and is_admin:
+        if request.method == "POST":
+            submit = {
+                "category_name": request.form.get("category_name")
+            }
+            mongo.db.categories.update({"_id": ObjectId(category_id)}, submit)
+            flash("Category Successfuly Updated")
+            return redirect(url_for("get_categories"))
+        category = mongo.db.categories.find_one({"_id": ObjectId(category_id)})
+        return render_template("edit_category.html", category=category)
+    return redirect(url_for("get_hows"))
 
 
 @app.route("/delete_category/<category_id>")
@@ -77,7 +114,7 @@ def delete_category(category_id):
     return redirect(url_for("get_categories"))
 
 
-@app.route("/register/", methods=["GET","POST"])
+@app.route("/register/", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
         # check if username already exists in db
@@ -145,44 +182,50 @@ def profile(username):
 
 @app.route("/logout/")
 def logout():
-    #remove user from session cookies
-    flash("You have been logged out!")
-    session.pop("user")
-    return redirect(url_for("login"))
+    if is_logged_in():
+        # remove user from session cookies
+        flash("You have been logged out!")
+        session.pop("user", None)
+        return redirect(url_for("login"))
+    return redirect(url_for("get_hows"))
 
 
-@app.route("/add_hows/", methods=["Get","POST"])
+@app.route("/add_hows/", methods=["Get", "POST"])
 def add_hows():
-    if request.method == "POST" :
-        task = {
-            "category_name": request.form.get("category_name"),
-            "hows_title": request.form.get("hows_title"),
-            "hows_description": request.form.get("hows_description"),
-            "created_by": session["user"]
-        }
-        mongo.db.hows.insert_one(task)
-        flash("How To Successfully Added")
-        return redirect(url_for("get_hows"))
+    if is_logged_in():
+        if request.method == "POST":
+            hows = {
+                "category_name": request.form.get("category_name"),
+                "hows_title": request.form.get("hows_title"),
+                "hows_description": request.form.get("hows_description"),
+                "created_by": session["user"]
+            }
+            mongo.db.hows.insert_one(hows)
+            flash("How To Successfully Added")
+            return redirect(url_for("get_hows"))
+        categories = mongo.db.categories.find().sort("category_name", 1)
+        return render_template("add_hows.html", categories=categories)
+    return redirect(url_for("get_hows"))
 
-    categories = mongo.db.categories.find().sort("category_name",1)
-    return render_template("add_hows.html", categories = categories)
 
-
-@app.route("/edit_hows/<hows_id>/", methods=["GET","POST"])
+@app.route("/edit_hows/<hows_id>/", methods=["GET", "POST"])
 def edit_hows(hows_id):
-    hows =mongo.db.hows.find_one({"_id": ObjectId(hows_id)})
-    if request.method == "POST" :
-        submit = {
-            "category_name": request.form.get("category_name"),
-            "hows_title": request.form.get("hows_title"),
-            "hows_description": request.form.get("hows_description"),
-            "created_by": session["user"]
-        }
-        mongo.db.hows.update({"_id":ObjectId(hows_id)},submit)
-        flash("How To Successfully Updated")
+    if is_logged_in():
+        hows = mongo.db.hows.find_one({"_id": ObjectId(hows_id)})
+        if request.method == "POST":
+            submit = {
+                "category_name": request.form.get("category_name"),
+                "hows_title": request.form.get("hows_title"),
+                "hows_description": request.form.get("hows_description"),
+                "created_by": session["user"]
+            }
+            mongo.db.hows.update({"_id": ObjectId(hows_id)}, submit)
+            flash("How To Successfully Updated")
 
-    categories = mongo.db.categories.find().sort("category_name",1)
-    return render_template("edit_hows.html", hows=hows, categories = categories)
+        categories = mongo.db.categories.find().sort("category_name", 1)
+        return render_template("edit_hows.html", hows=hows,
+                               categories=categories)
+    return redirect(url_for("get_hows"))
 
 
 @app.route("/delete_hows/<hows_id>")
@@ -191,6 +234,8 @@ def delete_hows(hows_id):
     flash("Task Successfully Deleted")
     return redirect(url_for("get_hows"))
 
+# --------- Exception Handling functions ---------
+
 
 @app.errorhandler(404)
 def not_found_error(error):
@@ -198,10 +243,15 @@ def not_found_error(error):
 
 
 @app.errorhandler(500)
-def internal_error(error):
-    db.session.rollback()
+def server_error(error):
     return render_template('500.html'), 500
-    
+
+
+@app.errorhandler(Exception)
+def internal_error(error):
+    return render_template('500.html'), 500
+
+
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),
             port=int(os.environ.get("PORT")),
