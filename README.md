@@ -59,7 +59,7 @@ How To website meets all the goals as the interface is simple to navigate and th
 
 Colours that were picked had to match the theme of this website.
 
-![Colour palette](https://github.com/TChauruka/how_to/blob/main/images/pallet.jpg)
+![Colour palette](https://github.com/TChauruka/how_to/blob/main/static/image/palette.jpg)
 
 ## Features
 
