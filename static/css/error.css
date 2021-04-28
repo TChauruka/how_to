@@ -6,6 +6,7 @@ svg {
   margin-top: -250px;
   margin-left: -400px;
 }
+
 .message-box {
   height: 200px;
   width: 380px;
@@ -17,27 +18,29 @@ svg {
   color:black;
   font-weight: 300;
 }
+
 .message-box h1 {
   font-size: 100px;
   line-height: 46px;
   margin-bottom: 40px;
 }
 
-
-
-
 #Polygon-1 , #Polygon-2 , #Polygon-3 , #Polygon-4 , #Polygon-4, #Polygon-5 {
   animation: float 1s infinite ease-in-out alternate;
 }
+
 #Polygon-2 {
   animation-delay: .2s; 
 }
+
 #Polygon-3 {
   animation-delay: .4s; 
 }
+
 #Polygon-4 {
   animation-delay: .6s; 
 }
+
 #Polygon-5 {
   animation-delay: .8s; 
 }
@@ -47,6 +50,7 @@ svg {
     transform: translateY(20px);
   }
 }
+
 @media (max-width: 450px) {
   svg {
     position: absolute;
