@@ -13,6 +13,15 @@ Main purpose of this project is to share knowledge with users and to get useful 
 
 ### Database Schema
 
+Database collection
+{
+    how_to{
+        categories,
+        hows,
+        users
+    }
+}
+
 categories collection:
 {
     category_name
