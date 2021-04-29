@@ -1,6 +1,7 @@
 # How To
 
 [View the live project here.](https://how-to-takudzwa.herokuapp.com/get_hows/)
+![Website View](https://github.com/TChauruka/how_to/blob/master/static/image/website.jpg)
 
 A How To website to share knowledge
 
