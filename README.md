@@ -112,6 +112,10 @@ Colours that were picked had to match the theme of this website.
 - [GitHub](https://github.com/) - code stored and shared remotely
 - [Chrome Developer Tools](https://developers.google.com/web/tools/chrome-devtools) - testing the page through the development process
 
+### Wireframe
+
+![wireframe_phone](https://github.com/TChauruka/how_to/blob/master/static/image/wireframe_desktop.png)
+![wireframe_desktop](https://github.com/TChauruka/how_to/blob/master/static/image/wireframe_phone.png)
 
 ## Testing
 
